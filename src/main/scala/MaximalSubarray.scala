@@ -30,8 +30,9 @@ class MaximalSubarray(target: Array[Int]) {
         val xs_sum = if (size == 1) {
           target(from)
         } else {
-          val sum_left = cache_sum(from, size - 1) + target(from + size - 1)
-          val sum_right = target(from) + cache_sum(from + 1, size - 1)
+          val sum_left =
+            cache_sum(from, size - 1) + cache_sum(from + size - 1, 1)
+          val sum_right = cache_sum(from, 1) + cache_sum(from + 1, size - 1)
           math.max(sum_left, sum_right)
         }
         computed_sum.put((from, size), xs_sum)
