@@ -18,4 +18,11 @@ class MaximalSubarraySuite extends munit.FunSuite {
     val expected = solver.naive_solve();
     assertEquals(obtained, expected)
   }
+
+  test("induced solution") {
+    val solver = MaximalSubarray(Array(10, -3, -2, -1, 1, 2, 4));
+    val obtained = solver.induced_solve();
+    val expected = solver.naive_solve();
+    assertEquals(obtained, expected)
+  }
 }
