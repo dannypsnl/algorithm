@@ -19,8 +19,7 @@ def all_subarray(xs: Array[Int]): Set[Array[Int]] = {
 }
 
 class MaximalSubarray(target: Array[Int]) {
-  var max_sum: Int = 0;
-  var cur_sum: Int = 0;
+  var max_sum: Int = Int.MinValue;
   var computed_sum: HashMap[Tuple2[Int, Int], Int] = HashMap();
 
   def cache_sum(from: Int, size: Int): Int = {
@@ -43,12 +42,13 @@ class MaximalSubarray(target: Array[Int]) {
   }
 
   def dynamic_solve(): Int = {
+    max_sum = Int.MinValue
     cache_sum(0, target.length)
     max_sum
   }
 
   def naive_solve(): Int = {
-    max_sum = 0
+    max_sum = Int.MinValue
     val subarrays = all_subarray(target);
     for (arr <- subarrays) {
       max_sum = math.max(sum(arr), max_sum)
