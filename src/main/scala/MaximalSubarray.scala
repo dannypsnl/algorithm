@@ -44,17 +44,13 @@ class MaximalSubarray(target: Array[Int]) {
   def induced_solve(): Int = {
     max_sum = Int.MinValue
     var cloned_target = target.clone()
-    var i = 0
-    var j = 1
-    while (i < cloned_target.length - 1) {
+    for (i <- 0 to cloned_target.length - 2; j = i + 1) {
       max_sum = math.max(max_sum, cloned_target(i))
       val local_sum = cloned_target(i) + cloned_target(j)
       if (local_sum > cloned_target(j)) {
         cloned_target(j) = local_sum
       }
       max_sum = math.max(max_sum, cloned_target(j))
-      i = i + 1
-      j = j + 1
     }
     max_sum
   }
