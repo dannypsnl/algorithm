@@ -8,9 +8,9 @@ predicate sorted(a:array<int>, min:int, max:int)
 method InsertionSort(target : array<int>)
   modifies target
 {
-  var i := 2;
+  var i := 1;
   while (i < target.Length - 1)
-    invariant 2 <= i
+    invariant 1 <= i
   {
     var key := target[i];
     var j := i - 1;
@@ -27,9 +27,9 @@ method InsertionSort(target : array<int>)
 method InsertionSortBackward(target : array<int>)
   modifies target
 {
-  var i := target.Length - 2;
-  while (i > 2)
-    invariant i <= target.Length - 2
+  var i := target.Length - 1;
+  while (i > 1)
+    invariant i <= target.Length - 1
     decreases i
   {
     var key := target[i];
