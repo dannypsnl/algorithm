@@ -24,24 +24,23 @@ method InsertionSort(target : array<int>)
   }
 }
 
-
 method InsertionSortBackward(target : array<int>)
   modifies target
 {
-  var i := target.Length - 1;
+  var i := target.Length - 2;
   while (i > 2)
-    invariant i <= target.Length - 1
+    invariant i <= target.Length - 2
     decreases i
   {
     var key := target[i];
-    var j := i - 1;
-    while (j < target.Length - 1 && target[j] > key)
-      invariant i - 1 <= j <= target.Length - 1
+    var j := i + 1;
+    while (j < target.Length - 1 && target[j] < key)
+      invariant i + 1 <= j <= target.Length - 1
     {
       target[j - 1] := target[j];
       j := j + 1;
     }
-    target[j - 1] := key;
+    target[j-1] := key;
     i := i - 1;
   }
 }
