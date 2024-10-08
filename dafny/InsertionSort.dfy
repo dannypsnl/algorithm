@@ -35,7 +35,7 @@ method InsertionSortBackward(target : array<int>)
     var key := target[i];
     var j := i + 1;
     while (j < target.Length - 1 && target[j] < key)
-      invariant i + 1 <= j <= target.Length - 1
+      invariant i + 1 <= j <= target.Length
     {
       target[j - 1] := target[j];
       j := j + 1;
