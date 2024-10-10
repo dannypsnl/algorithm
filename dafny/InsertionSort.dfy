@@ -5,6 +5,43 @@ predicate sorted(a:array<int>, min:int, max:int)
   forall i,j | min <= i < j < max :: a[i] <= a[j] 
 }
 
+method Exchange(target : array<int>, j : int)
+  modifies target
+  requires 0 <= j <= target.Length - 2
+  requires target[j+1] < target[j]
+  ensures multiset(target[..]) == old(multiset(target[..]))
+  ensures target[j] < target[j+1]
+{
+  var k := target[j + 1];
+  target[j + 1] := target[j];
+  target[j] := k;
+}
+method Move(target : array<int>, i : int)
+  modifies target
+  requires 1 <= i <= target.Length - 1
+  ensures multiset(target[..]) == old(multiset(target[..]))
+{
+  var j := i - 1;
+  while (0 <= j && target[j+1] < target[j])
+    invariant -1 <= j <= i-1 <= target.Length - 2
+    invariant multiset(target[..]) == old(multiset(target[..]))
+    decreases j
+  {
+    Exchange(target, j);
+    assert target[j] < target[j+1];
+    j := j - 1;
+  }
+  assert !(0 <= j && target[j+1] < target[j]);
+  assert (0 > j || target[j+1] >= target[j]);
+  assert (-1 == j || target[j+1] >= target[j]);
+  if j == -1 {
+    assert forall k :: 0 <= k <= i ==> target[0] <= target[k];
+  } else {
+    assert target[j+1] >= target[j];
+    assert forall k :: j + 2 <= k <= i ==> target[j+1] <= target[k];
+  }
+}
+
 method InsertionSort(target : array<int>)
   modifies target
   ensures forall i,j :: 0 <= i < j < target.Length ==> target[i] <= target[j]
@@ -17,34 +54,9 @@ method InsertionSort(target : array<int>)
   var i := 1;
   while (i < target.Length - 1)
     invariant 1 <= i <= target.Length
+    invariant multiset(target[..]) == old(multiset(target[..]))
   {
-    var key := target[i];
-    var j := i - 1;
-    while (0 <= j && key < target[j])
-      invariant i - 1 >= j >= -1
-      decreases j
-    {
-      assert key < target[j];
-      target[j + 1] := target[j];
-      assert key < target[j+1];
-      j := j - 1;
-    }
-    assert !(0 <= j && key < target[j]);
-    assert (0 > j || key >= target[j]);
-    assert (-1 == j || key >= target[j]);
-    target[j+1] := key;
-    if (j == -1) {
-      assert -1 == j;
-      assert key == target[j+1];
-      assert key == target[0];
-      // assert forall k :: 1 <= k <= i ==> key < target[k];
-    } else {
-      assert key >= target[j];
-      assert key == target[j+1];
-      assert target[j+1] >= target[j];
-      assert key < target[j+1];
-      // assert forall k :: j+2 <= k <= i ==> key < target[k];
-    }
+    Move(target, i);
     i := i + 1;
   }
   assert i >= target.Length - 1;
