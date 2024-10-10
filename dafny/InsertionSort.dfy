@@ -16,29 +16,26 @@ method Exchange(target : array<int>, j : int)
   target[j + 1] := target[j];
   target[j] := k;
 }
-method Move(target : array<int>, i : int)
+// idea: The 0..k-1 is sorted array, now insert i to proper position,
+// and at the end of this method 0..k is sorted
+method Insert(target : array<int>, k : int)
   modifies target
-  requires 1 <= i <= target.Length - 1
+  requires 2 <= k <= target.Length - 1
+  requires forall i,j :: 0 <= i < j <= k-1 ==> target[i] <= target[j]
   ensures multiset(target[..]) == old(multiset(target[..]))
+  ensures forall i,j :: 0 <= i < j <= k ==> target[i] <= target[j]
 {
-  var j := i - 1;
-  while (0 <= j && target[j+1] < target[j])
-    invariant -1 <= j <= i-1 <= target.Length - 2
+  var j := k-1;
+  while (j > 0)
     invariant multiset(target[..]) == old(multiset(target[..]))
     decreases j
   {
-    Exchange(target, j);
-    assert target[j] < target[j+1];
+    if target[j] > target[j+1] {
+      Exchange(target, j);
+    } else {
+      return;
+    }
     j := j - 1;
-  }
-  assert !(0 <= j && target[j+1] < target[j]);
-  assert (0 > j || target[j+1] >= target[j]);
-  assert (-1 == j || target[j+1] >= target[j]);
-  if j == -1 {
-    assert forall k :: 0 <= k <= i ==> target[0] <= target[k];
-  } else {
-    assert target[j+1] >= target[j];
-    assert forall k :: j + 2 <= k <= i ==> target[j+1] <= target[k];
   }
 }
 
@@ -51,15 +48,35 @@ method InsertionSort(target : array<int>)
     return;
   }
   assert target.Length >= 2;
-  var i := 1;
-  while (i < target.Length - 1)
-    invariant 1 <= i <= target.Length
-    invariant multiset(target[..]) == old(multiset(target[..]))
-  {
-    Move(target, i);
-    i := i + 1;
+
+  if target[0] > target[1] {
+    Exchange(target, 0);
+  } else {
+    // do nothing
   }
-  assert i >= target.Length - 1;
+  assert forall i,j :: 0 <= i < j < 2 ==> target[i] <= target[j];
+  // first two are ordered now
+
+  var k := 2;
+  while (k < target.Length)
+    invariant 2 <= k <= target.Length
+    invariant multiset(target[..]) == old(multiset(target[..]))
+    invariant forall i,j :: 0 <= i < j <= k-1 ==> target[i] <= target[j]
+  {
+    Insert(target, k);
+    assert forall i,j :: 0 <= i < j <= k ==> target[i] <= target[j];
+    k := k + 1;
+  }
+  assert k == target.Length;
+}
+
+method TestInsertionSortAtLengthTwo(target : array<int>)
+  modifies target
+  requires target.Length == 2
+  ensures forall i,j :: 0 <= i < j < target.Length ==> target[i] <= target[j]
+  ensures multiset(target[..]) == old(multiset(target[..]))
+{
+  InsertionSort(target);
 }
 
 method InsertionSortBackward(target : array<int>)
