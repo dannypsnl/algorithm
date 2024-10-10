@@ -17,16 +17,26 @@ method InsertionSort(target : array<int>)
   {
     var key := target[i];
     var j := i - 1;
-    while (0 < j && key < target[j])
-      invariant 0 <= j <= i - 1
+    while (0 <= j && key < target[j])
+      invariant -1 <= j <= i - 1
       decreases j
     {
-      target[j + 1] := target[j];
       assert key < target[j];
+      target[j + 1] := target[j];
+      assert key < target[j+1];
       j := j - 1;
     }
+    assert !(0 <= j && key < target[j]);
+    assert (0 > j || key >= target[j]);
+    assert (-1 == j || key >= target[j]);
     target[j+1] := key;
-    assert forall k :: j+1 < k <= i ==> key < target[k];
+    if (j == -1) {
+      assert -1 == j;
+      assert forall k :: 1 <= k <= i ==> key < target[k];
+    } else {
+      assert key >= target[j];
+      assert forall k :: j+2 <= k <= i ==> key < target[k];
+    }
     i := i + 1;
   }
 }
