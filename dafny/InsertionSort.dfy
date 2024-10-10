@@ -29,7 +29,7 @@ method Insert(target : array<int>, k : int)
   ensures Sorted(target, 0, k)
 {
   var j := k-1;
-  assert forall i,j :: 0 <= i < j <= k-1 ==> target[i] <= target[j];
+  assert Sorted(target, 0, k-1);
   while (j > 0 && target[j] > target[j+1])
     invariant -1 <= j <= k-1
     invariant Sorted(target, 0, j)
