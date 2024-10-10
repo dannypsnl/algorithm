@@ -5,42 +5,46 @@ predicate Sorted(a : array<int>, min : int, max : int)
   forall i, j :: min <= i <= j <= max ==> a[i] <= a[j]
 }
 
-method Move(target : array<int>, j : int)
+method Exchange(target : array<int>, j : int)
   modifies target
-  requires 1 <= j <= target.Length - 2
-  requires target[j+1] < target[j]
-  requires Sorted(target, 0, j)
+  requires 1 <= j <= target.Length - 1
+  requires target[j] < target[j-1]
   ensures multiset(target[..]) == old(multiset(target[..]))
-  ensures target[j] < target[j+1]
-  ensures Sorted(target, 0, j-1)
-  ensures Sorted(target, j, j+1)
+  ensures target[j-1] < target[j]
 {
-  var k := target[j + 1];
-  target[j + 1] := target[j];
-  target[j] := k;
+  var key := target[j - 1];
+  target[j - 1] := target[j];
+  target[j] := key;
 }
 // idea: The 0..k-1 is sorted array, now insert k to proper position,
 // and at the end of this method 0..k is sorted
 method Insert(target : array<int>, k : int)
   modifies target
-  requires 2 <= k <= target.Length - 1
+  requires 1 <= k <= target.Length - 1
   requires Sorted(target, 0, k-1)
   ensures multiset(target[..]) == old(multiset(target[..]))
   ensures Sorted(target, 0, k)
 {
-  var j := k-1;
-  assert Sorted(target, 0, k-1);
-  while (j > 0 && target[j] > target[j+1])
-    invariant -1 <= j <= k-1
-    invariant Sorted(target, 0, j)
-    invariant multiset(target[..]) == old(multiset(target[..]))
-    decreases j
-  {
-    Move(target, j);
-    j := j - 1;
+  if k == 1 {
+    if target[0] > target[1] {
+      Exchange(target, 1);
+    }
+    return;
+  } else {
+    assert k >= 2;
+    if target[k-1] > target[k] {
+      assert target[k-1] > target[k];
+      var key := target[k - 1];
+      target[k - 1] := target[k];
+      target[k] := key;
+      assert target[k] > target[k-1];
+      assert Sorted(target, 0, k-2);
+      Insert(target, k-1);
+      assert Sorted(target, 0, k-1);
+      assert target[k] > target[k-1];
+      assert Sorted(target, 0, k);
+    }
   }
-  assert !(j > 0 && target[j] > target[j+1]);
-  assert (j <= 0 || target[j] <= target[j+1]);
 }
 
 method InsertionSort(target : array<int>)
