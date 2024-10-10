@@ -10,10 +10,13 @@ method InsertionSort(target : array<int>)
   ensures forall i,j :: 0 <= i < j < target.Length ==> target[i] <= target[j]
   ensures multiset(target[..]) == old(multiset(target[..]))
 {
-  assert multiset(target[..]) == old(multiset(target[..]));
+  if target.Length == 1 || target.Length == 0 {
+    return;
+  }
+  assert target.Length >= 2;
   var i := 1;
   while (i < target.Length - 1)
-    invariant 1 <= i <= target.Length+1
+    invariant 1 <= i <= target.Length
   {
     var key := target[i];
     var j := i - 1;
