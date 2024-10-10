@@ -21,7 +21,7 @@ method InsertionSort(target : array<int>)
     var key := target[i];
     var j := i - 1;
     while (0 <= j && key < target[j])
-      invariant -1 <= j <= i - 1
+      invariant i - 1 >= j >= -1
       decreases j
     {
       assert key < target[j];
@@ -35,13 +35,19 @@ method InsertionSort(target : array<int>)
     target[j+1] := key;
     if (j == -1) {
       assert -1 == j;
-      assert forall k :: 1 <= k <= i ==> key < target[k];
+      assert key == target[j+1];
+      assert key == target[0];
+      // assert forall k :: 1 <= k <= i ==> key < target[k];
     } else {
       assert key >= target[j];
-      assert forall k :: j+2 <= k <= i ==> key < target[k];
+      assert key == target[j+1];
+      assert target[j+1] >= target[j];
+      assert key < target[j+1];
+      // assert forall k :: j+2 <= k <= i ==> key < target[k];
     }
     i := i + 1;
   }
+  assert i >= target.Length - 1;
 }
 
 method InsertionSortBackward(target : array<int>)
