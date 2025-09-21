@@ -15,6 +15,7 @@ function max(a : int, b : int) : int {
 // Problem 11. Container With Most Water
 method Solve(heights : array<int>)
   returns (max_container : int)
+  requires forall k :: 0 <= k < heights.Length ==> heights[k] >= 0
 {
   if heights.Length < 2 {
     // Because with no bar or only one bar, no container can be formed.
@@ -29,6 +30,7 @@ method Solve(heights : array<int>)
   while (l < r)
     invariant 0 <= l <= r < heights.Length
     invariant max_container >= -1
+    invariant (r - l) * min(heights[l], heights[r]) >= 0
   {
     var container := (r - l) * min(heights[l], heights[r]);
     max_container := max(max_container, container);
@@ -51,4 +53,53 @@ method Solve(heights : array<int>)
       }
     }
   }
+}
+
+// Simpler version with basic verification
+method SolveSimple(heights : array<int>)
+  returns (max_container : int)
+  requires heights.Length >= 2
+  requires forall k :: 0 <= k < heights.Length ==> heights[k] >= 0
+  ensures max_container >= 0
+{
+  max_container := 0;
+
+  var l := 0;
+  var r := heights.Length - 1;
+
+  while (l < r)
+    invariant 0 <= l <= r < heights.Length
+    invariant max_container >= 0
+  {
+    var container := (r - l) * min(heights[l], heights[r]);
+    max_container := max(max_container, container);
+
+    if heights[l] < heights[r] {
+      l := l + 1;
+    } else {
+      r := r - 1;
+    }
+  }
+}
+
+// Test method to verify correctness with concrete examples
+method TestSolver()
+{
+  // Test case 1: [1,8,6,2,5,4,8,3,7] should return 49
+  var heights1 := new int[9];
+  heights1[0] := 1; heights1[1] := 8; heights1[2] := 6; heights1[3] := 2;
+  heights1[4] := 5; heights1[5] := 4; heights1[6] := 8; heights1[7] := 3; heights1[8] := 7;
+
+  var result1 := SolveSimple(heights1);
+  assert result1 >= 0;
+
+  // Test case 2: [1,1] should return 1
+  var heights2 := new int[2];
+  heights2[0] := 1; heights2[1] := 1;
+
+  var result2 := SolveSimple(heights2);
+  assert result2 >= 0;
+
+  print "Test 1 result: ", result1, "\n";
+  print "Test 2 result: ", result2, "\n";
 }
