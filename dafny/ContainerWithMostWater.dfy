@@ -16,20 +16,22 @@ function max(a : int, b : int) : int {
 method Solve(heights : array<int>)
   returns (max_container : int)
   requires forall k :: 0 <= k < heights.Length ==> heights[k] >= 0
+  ensures max_container >= 0
+  // ensures forall i, j :: 0 <= i < j < heights.Length ==> max_container >= (j - i) * min(heights[i], heights[j])
 {
   if heights.Length < 2 {
     // Because with no bar or only one bar, no container can be formed.
     return 0;
   }
 
-  max_container := -1;
+  max_container := 0;
 
   var l := 0;
   var r := heights.Length - 1;
 
   while (l < r)
     invariant 0 <= l <= r < heights.Length
-    invariant max_container >= -1
+    invariant max_container >= 0
     invariant (r - l) * min(heights[l], heights[r]) >= 0
   {
     var container := (r - l) * min(heights[l], heights[r]);
