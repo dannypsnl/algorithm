@@ -98,13 +98,14 @@ method SolveShort(heights : array<int>)
       max_container := container;
     }
     assert max_container >= container;
-
     // what we can only tell, is moving another side can only decrease or keep the same container size, hence we move the smaller side.
     if heights[l] < heights[r] {
       assert max_container >= container >= ((r - 1) - l) * heights[l];
+      assert forall k :: l < k < r ==> container >= (k - l) * heights[l];
       l := l + 1;
     } else {
       assert max_container >= container >= (r - (l + 1)) * heights[r];
+      assert forall k :: l < k < r ==> container >= (r - k) * heights[r];
       r := r - 1;
     }
 
