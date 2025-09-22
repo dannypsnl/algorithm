@@ -12,6 +12,23 @@ function max(a : int, b : int) : int {
     b
 }
 
+method FindMax(a : array<int>) returns (m : int)
+  requires a.Length > 0
+  ensures forall k :: 0 <= k < a.Length ==> m >= a[k]
+{
+  m := a[0];
+  var i := 1;
+  while (i < a.Length)
+    invariant 1 <= i <= a.Length
+    invariant forall k :: 0 <= k < i ==> m >= a[k]
+  {
+    if m < a[i] {
+      m := a[i];
+    }
+    i := i + 1;
+  }
+}
+
 // Problem 11. Container With Most Water
 method Solve(heights : array<int>)
   returns (max_container : int)
@@ -63,13 +80,16 @@ method SolveShort(heights : array<int>)
   var previous_max_container := 0;
   max_container := 0;
 
+  var max_height := FindMax(heights);
+  assert forall k :: 0 <= k < heights.Length ==> heights[k] <= max_height;
+
   var l := 0;
   var r := heights.Length - 1;
 
   while (l < r)
     invariant 0 <= l <= r < heights.Length
     invariant max_container >= 0
-    // By this we at least know monotonicity of max_container
+    // By this we know the monotonicity of max_container
     invariant max_container >= previous_max_container
   {
     var container := (r - l) * min(heights[l], heights[r]);
@@ -77,13 +97,20 @@ method SolveShort(heights : array<int>)
       previous_max_container := max_container;
       max_container := container;
     }
+    assert max_container >= container;
 
+    // what we can only tell, is moving another side can only decrease or keep the same container size, hence we move the smaller side.
     if heights[l] < heights[r] {
-      assert (r - l) * heights[l] == container;
+      assert max_container >= container >= ((r - 1) - l) * heights[l];
       l := l + 1;
     } else {
-      assert (r - l) * heights[r] == container;
+      assert max_container >= container >= (r - (l + 1)) * heights[r];
       r := r - 1;
+    }
+
+    // This is, even with the highest bar, we cannot find a larger container, hence we can stop here.
+    if max_height * (r - l) <= max_container {
+      break;
     }
   }
 }
