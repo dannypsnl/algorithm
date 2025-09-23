@@ -77,7 +77,7 @@ method SolveShort(heights : array<int>)
   ensures max_container >= 0
   // ensures forall i, j :: 0 <= i < j < heights.Length ==> max_container >= (j - i) * min(heights[i], heights[j])
 {
-  var previous_max_container := 0;
+  ghost var previous_max_container := 0;
   max_container := 0;
 
   var max_height := FindMax(heights);
